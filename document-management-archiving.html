@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Management Archiving — Maharlika National Service</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1e4d2b;
+    --forest-mid: #2d6a3f;
+    --forest-light: #3d8a55;
+    --sage: #6aab7a;
+    --cream: #f7f5f0;
+    --warm-white: #fafaf8;
+    --ink: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e0d8;
+    --archived: #d97706;
+    --active: #16a34a;
+    --borrowed: #2563eb;
+    --danger: #dc2626;
+    --sidebar-w: 260px;
+    --radius: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── AUTH SCREEN ── */
+  #auth-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--cream);
+    padding: 20px;
+  }
+
+  .auth-card {
+    display: flex;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(30,77,43,.12);
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .auth-form-side {
+    flex: 1;
+    padding: 48px 40px;
+  }
+
+  .auth-form-side h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .auth-form-side p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--ink); }
+
+  .form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+    background: var(--warm-white);
+  }
+
+  .form-group input:focus { border-color: var(--forest-mid); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--forest);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover { background: var(--forest-mid); }
+  .btn-primary:active { transform: scale(.99); }
+
+  .auth-brand-side {
+    width: 260px;
+    background: var(--forest);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    gap: 18px;
+  }
+
+  .brand-logo {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+  }
+
+  .brand-name {
+    color: #fff;
+    text-align: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    line-height: 1.3;
+    letter-spacing: .3px;
+  }
+
+  .auth-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--danger);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* ── APP SHELL ── */
+  #app { display: none; height: 100vh; overflow: hidden; flex-direction: row; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--forest);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+
+  .sidebar-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-title { color: #fff; font-size: 13px; font-weight: 600; line-height: 1.3; }
+
+  nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: rgba(255,255,255,.7);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    border: none;
+    background: none;
+    font-family: inherit;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,.1); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,.18); color: #fff; font-weight: 500; }
+  .nav-icon { font-size: 16px; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #fff; flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; }
+  .user-name { color: #fff; font-size: 12px; font-weight: 500; }
+  .user-role { color: rgba(255,255,255,.55); font-size: 11px; }
+
+  .logout-btn {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,.55); font-size: 16px; padding: 4px;
+    border-radius: 6px; transition: color .2s;
+  }
+  .logout-btn:hover { color: #fff; }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; overflow-y: auto; background: var(--cream); }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 36px 40px; animation: fadeIn .2s ease; }
+  .page.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .page-header { margin-bottom: 32px; }
+  .page-header h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--ink); margin-bottom: 4px; }
+  .page-header p { color: var(--muted); font-size: 14px; }
+
+  /* ── STATS ROW ── */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+
+  .stat-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+  }
+
+  .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 34px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .stat-icon { font-size: 20px; }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .card-title { font-weight: 600; font-size: 14px; color: var(--ink); }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { padding: 11px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; background: var(--warm-white); border-bottom: 1px solid var(--border); }
+  tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); color: var(--ink); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--warm-white); }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .badge-active { background: #dcfce7; color: var(--active); }
+  .badge-archived { background: #fef3c7; color: var(--archived); }
+  .badge-borrowed { background: #dbeafe; color: var(--borrowed); }
+
+  /* ── SEARCH & FILTER ── */
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .search-input {
+    flex: 1; min-width: 200px;
+    padding: 9px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    background: var(--warm-white);
+    transition: border-color .2s;
+  }
+
+  .search-input:focus { border-color: var(--forest-mid); }
+
+  .filter-select {
+    padding: 9px 32px 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    background: var(--warm-white);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  /* ── STORAGE PAGE ── */
+  .folder-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+    background: #fff;
+  }
+
+  .folder-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+  }
+
+  .folder-header:hover { background: var(--warm-white); }
+
+  .folder-header-left { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 14px; }
+  .folder-icon { font-size: 16px; color: var(--forest); }
+  .chevron { transition: transform .2s; font-size: 12px; color: var(--muted); }
+  .folder-item.open .chevron { transform: rotate(180deg); }
+
+  .folder-body { display: none; border-top: 1px solid var(--border); }
+  .folder-item.open .folder-body { display: block; }
+
+  /* ── ACTION BUTTONS ── */
+  .btn-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: background .15s;
+  }
+
+  .btn-dl { background: var(--forest); color: #fff; }
+  .btn-dl:hover { background: var(--forest-mid); }
+
+  .btn-dots { background: none; color: var(--muted); border: 1px solid var(--border); }
+  .btn-dots:hover { background: var(--warm-white); }
+
+  .action-group { display: flex; align-items: center; gap: 6px; position: relative; }
+
+  /* dropdown */
+  .dropdown {
+    position: absolute;
+    right: 0;
+    top: 38px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.1);
+    z-index: 100;
+    min-width: 160px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .dropdown.open { display: block; }
+
+  .dropdown-item {
+    padding: 10px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    transition: background .1s;
+  }
+
+  .dropdown-item:hover { background: var(--warm-white); }
+  .dropdown-item.danger { color: var(--danger); }
+
+  /* ── RETRIEVAL TABS ── */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 28px;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--forest); border-bottom-color: var(--forest); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── FORM ELEMENTS ── */
+  .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+
+  .form-select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 14px;
+    background: var(--warm-white);
+    outline: none;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+
+  .form-select:focus { border-color: var(--forest-mid); }
+
+  .selected-doc-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 16px;
+  }
+
+  .selected-doc-card p { font-size: 14px; color: var(--ink); margin-bottom: 6px; }
+  .selected-doc-card p:last-of-type { margin-bottom: 14px; }
+
+  .btn-download-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--ink);
+    transition: border-color .2s, background .2s;
+  }
+
+  .btn-download-file:hover { border-color: var(--forest); background: #f0f7f2; }
+
+  .btn-action-full {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px;
+    background: var(--forest);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background .2s;
+  }
+
+  .btn-action-full:hover { background: var(--forest-mid); }
+  .btn-action-full:disabled { background: #9cbc9c; cursor: not-allowed; }
+
+  /* ── MY DOCUMENTS ── */
+  .doc-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    background: #fff;
+    margin-bottom: 12px;
+  }
+
+  .doc-card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .doc-folder-icon { font-size: 20px; color: var(--forest); margin-top: 2px; }
+
+  .doc-card-info h4 { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+  .doc-card-info p { font-size: 12px; color: var(--muted); }
+
+  .doc-card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn-outline {
+    padding: 7px 14px;
+    border: 1.5px solid var(--border);
+    background: none;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ink);
+    transition: border-color .15s, background .15s;
+  }
+
+  .btn-outline:hover { border-color: var(--forest); background: #f0f7f2; }
+
+  .btn-outline.primary-outline {
+    background: var(--forest);
+    color: #fff;
+    border-color: var(--forest);
+  }
+
+  .btn-outline.primary-outline:hover { background: var(--forest-mid); border-color: var(--forest-mid); }
+
+  /* ── AUDIT TRAIL ── */
+  .op-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    background: #f3f4f6;
+    color: var(--muted);
+  }
+
+  .op-backup { background: #e0f2fe; color: #0369a1; }
+  .op-restore { background: #f0fdf4; color: #15803d; }
+  .op-modified { background: #fef9c3; color: #854d0e; }
+  .op-deleted { background: #fee2e2; color: #b91c1c; }
+  .op-archived { background: #fef3c7; color: #92400e; }
+  .op-renewed { background: #ede9fe; color: #6d28d9; }
+  .op-borrow { background: #dbeafe; color: #1d4ed8; }
+  .op-returned { background: #d1fae5; color: #065f46; }
+  .op-location { background: #fce7f3; color: #9d174d; }
+  .op-account { background: #f3f4f6; color: #374151; }
+  .op-requested { background: #e0e7ff; color: #3730a3; }
+
+  /* ── BORROW REQUESTS ── */
+  .borrow-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+
+  .borrow-card-info { flex: 1; }
+  .borrow-card-info h4 { font-size: 14px; font-weight: 500; }
+  .borrow-card-info p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .borrow-actions { display: flex; gap: 8px; }
+
+  .btn-approve {
+    padding: 7px 14px;
+    background: var(--forest);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s;
+  }
+
+  .btn-approve:hover { background: var(--forest-mid); }
+
+  .btn-refuse {
+    padding: 7px 14px;
+    background: none;
+    color: var(--danger);
+    border: 1.5px solid #fecaca;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s;
+  }
+
+  .btn-refuse:hover { background: #fef2f2; }
+
+  .empty-state {
+    padding: 32px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+  }
+
+  .modal h3 { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  .btn-cancel {
+    padding: 9px 18px;
+    border: 1.5px solid var(--border);
+    background: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .btn-confirm {
+    padding: 9px 18px;
+    background: var(--forest);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .btn-confirm:hover { background: var(--forest-mid); }
+  .btn-confirm.danger-confirm { background: var(--danger); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--ink);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform .3s, opacity .3s;
+    max-width: 300px;
+  }
+
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── UPDATE LOCATION MODAL ── */
+  .modal-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+    margin-top: 8px;
+  }
+
+  .modal-input:focus { border-color: var(--forest-mid); }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .page { padding: 24px 16px; }
+    .stats-row { grid-template-columns: 1fr; }
+    .auth-card { flex-direction: column; }
+    .auth-brand-side { width: 100%; padding: 32px; flex-direction: row; }
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-form-side">
+      <h1>Document Management<br>Archiving</h1>
+      <p>Login to your account</p>
+
+      <div class="auth-error" id="auth-error">Invalid email or password. Please try again.</div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" value="alhea@gmail.com">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" value="password123">
+      </div>
+
+      <button class="btn-primary" id="login-btn" onclick="doLogin()">
+        <span id="login-label">Login</span>
+      </button>
+    </div>
+
+    <div class="auth-brand-side">
+      <div class="brand-logo">🏛️</div>
+      <div class="brand-name">MAHARLIKA<br>NATIONAL SERVICE</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════════ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏛️</div>
+      <div class="sidebar-title">Document Management<br>Archiving</div>
+    </div>
+
+    <nav>
+      <button class="nav-item active" onclick="showPage('storage', this)">
+        <span class="nav-icon">📁</span> Storage
+      </button>
+      <button class="nav-item" onclick="showPage('tracking', this)">
+        <span class="nav-icon">📈</span> Tracking
+      </button>
+      <button class="nav-item" onclick="showPage('retrieval', this)">
+        <span class="nav-icon">🔄</span> Retrieval
+      </button>
+      <button class="nav-item" onclick="showPage('audit', this)">
+        <span class="nav-icon">🛡️</span> Audit Trail
+      </button>
+      <!-- User-facing view -->
+      <div style="height:1px; background:rgba(255,255,255,.1); margin: 8px 0;"></div>
+      <button class="nav-item" id="nav-mydocs" onclick="showPage('mydocs', this)" style="display:none">
+        <span class="nav-icon">📄</span> My Documents
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-avatar" id="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-username">Alhea Sarona</div>
+        <div class="user-role" id="sidebar-role">Admin</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()" title="Logout">⇥</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ── STORAGE PAGE ── -->
+    <div class="page active" id="page-storage">
+      <div class="page-header">
+        <h2>List of Documents</h2>
+        <p>Browse all document records.</p>
+      </div>
+      <div id="folders-container"></div>
+    </div>
+
+    <!-- ── TRACKING PAGE ── -->
+    <div class="page" id="page-tracking">
+      <div class="page-header">
+        <h2>Documents Location and Status</h2>
+        <p>Monitor document status and locations.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total documents</div>
+          <div class="stat-value"><span class="stat-icon">📁</span><span id="track-total">0</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Borrowed documents</div>
+          <div class="stat-value"><span class="stat-icon">🔗</span><span id="track-borrowed">0</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Archived documents</div>
+          <div class="stat-value"><span class="stat-icon">🗄️</span><span id="track-archived">0</span></div>
+        </div>
+      </div>
+
+      <!-- Borrow requests section -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="card-header">
+          <span class="card-title">Borrow Requests</span>
+        </div>
+        <div id="borrow-requests-list">
+          <div class="empty-state">Documents that are requested for borrowing will appear here.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="toolbar" style="width:100%">
+            <input type="text" class="search-input" placeholder="Search subject, document type, location…" oninput="filterTracking(this.value)">
+            <select class="filter-select" onchange="filterTrackingStatus(this.value)">
+              <option value="">All status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="ARCHIVED">Archived</option>
+              <option value="BORROWED">Borrowed</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Document Type</th>
+                <th>Subject</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Expiration Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="tracking-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RETRIEVAL PAGE ── -->
+    <div class="page" id="page-retrieval">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="showTab('backup', this)">💾 Backup</button>
+        <button class="tab-btn" onclick="showTab('restore', this)">↩️ Restore</button>
+        <button class="tab-btn" onclick="showTab('update', this)">🔁 Update/Renew</button>
+      </div>
+
+      <!-- Backup tab -->
+      <div class="tab-panel active" id="tab-backup">
+        <div class="page-header" style="margin-bottom:20px">
+          <h2>Backup</h2>
+          <p>Backup documents.</p>
+        </div>
+        <div class="card" style="max-width:640px; padding:24px">
+          <div class="card-title" style="margin-bottom:18px">Create a backup</div>
+          <div class="form-label">Select a document</div>
+          <select class="form-select" id="backup-select" onchange="onBackupSelect()">
+            <option value="">Choose a document</option>
+          </select>
+          <div id="backup-preview" style="display:none" class="selected-doc-card">
+            <p id="bp-version"></p>
+            <p id="bp-type"></p>
+            <p id="bp-subject"></p>
+            <button class="btn-download-file">⬇ Download File</button>
+          </div>
+          <button class="btn-action-full" id="backup-btn" onclick="doBackup()" disabled>
+            Create a backup 💾
+          </button>
+        </div>
+      </div>
+
+      <!-- Restore tab -->
+      <div class="tab-panel" id="tab-restore">
+        <div class="page-header" style="margin-bottom:20px">
+          <h2>Restore</h2>
+          <p>Restore deleted documents from backup.</p>
+        </div>
+        <div class="card" style="max-width:640px; padding:24px">
+          <div class="card-title" style="margin-bottom:18px">Restore a document</div>
+          <div class="form-label">Select a backed-up document</div>
+          <select class="form-select" id="restore-select" onchange="onRestoreSelect()">
+            <option value="">Choose a document</option>
+          </select>
+          <div id="restore-preview" style="display:none" class="selected-doc-card">
+            <p id="rp-version"></p>
+            <p id="rp-type"></p>
+            <p id="rp-subject"></p>
+          </div>
+          <button class="btn-action-full" id="restore-btn" onclick="doRestore()" disabled>
+            Restore document ↩️
+          </button>
+        </div>
+      </div>
+
+      <!-- Update/Renew tab -->
+      <div class="tab-panel" id="tab-update">
+        <div class="page-header" style="margin-bottom:20px">
+          <h2>Update / Renew</h2>
+          <p>Update document details or renew expiration dates.</p>
+        </div>
+        <div class="card" style="max-width:640px; padding:24px">
+          <div class="card-title" style="margin-bottom:18px">Select a document to update</div>
+          <div class="form-label">Document</div>
+          <select class="form-select" id="update-select" onchange="onUpdateSelect()">
+            <option value="">Choose a document</option>
+          </select>
+          <div id="update-form" style="display:none; margin-top:16px">
+            <div class="form-group" style="margin-bottom:14px">
+              <label class="form-label">New Expiration Date</label>
+              <input type="date" class="modal-input" id="update-expiry">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">New Location</label>
+              <input type="text" class="modal-input" id="update-location" placeholder="e.g. Revenue Office Drawer 2">
+            </div>
+          </div>
+          <button class="btn-action-full" id="update-btn" onclick="doUpdate()" disabled>
+            Update / Renew 🔁
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AUDIT TRAIL ── -->
+    <div class="page" id="page-audit">
+      <div class="page-header">
+        <h2>Audit Trail</h2>
+        <p>Complete log of all system operations and modifications.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Operations</div>
+          <div class="stat-value"><span class="stat-icon">🔧</span><span id="audit-ops">0</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unique IP Addresses</div>
+          <div class="stat-value"><span class="stat-icon">🖥️</span><span id="audit-ips">0</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unique Users</div>
+          <div class="stat-value"><span class="stat-icon">👤</span><span id="audit-users">0</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="toolbar" style="width:100%">
+            <input type="text" class="search-input" placeholder="Search user, document type, ip address…" oninput="filterAudit(this.value)">
+            <select class="filter-select" onchange="filterAuditOp(this.value)">
+              <option value="">All operations</option>
+              <option value="DOCUMENT_MODIFIED">Document modified</option>
+              <option value="DOCUMENT_DELETED">Document deleted</option>
+              <option value="DOCUMENT_BACKUP">Backup created</option>
+              <option value="DOCUMENT_RESTORED">Document restored</option>
+              <option value="DOCUMENT_RENEWED">Document renewed</option>
+              <option value="DOCUMENT_ARCHIVED">Document archived</option>
+              <option value="DOCUMENT_UNARCHIVED">Document unarchived</option>
+              <option value="DOCUMENT_BORROW_APPROVED">Document borrow approved</option>
+              <option value="DOCUMENT_BORROW_REFUSED">Document borrow refused</option>
+              <option value="DOCUMENT_RETURNED">Document returned</option>
+              <option value="LOCATION_CHANGED">Location changed</option>
+              <option value="ACCOUNT_CREATED">Account created</option>
+              <option value="ACCOUNT_MODIFIED">Account modified</option>
+              <option value="ACCOUNT_DELETED">Account deleted</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Operation</th>
+                <th>Document</th>
+                <th>User</th>
+                <th>IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MY DOCUMENTS (user view) ── -->
+    <div class="page" id="page-mydocs">
+      <div class="page-header">
+        <h2>My Documents</h2>
+        <p>View and access your documents</p>
+      </div>
+
+      <div class="stats-row" style="margin-bottom:28px">
+        <div class="stat-card">
+          <div class="stat-label">Total Documents</div>
+          <div class="stat-value" id="my-total">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Archived Documents</div>
+          <div class="stat-value" id="my-archived">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Borrowed Documents</div>
+          <div class="stat-value" id="my-borrowed">0</div>
+        </div>
+      </div>
+
+      <div class="section-label">Document List</div>
+      <div id="my-docs-list"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── UPDATE LOCATION MODAL ── -->
+<div class="modal-overlay" id="location-modal">
+  <div class="modal">
+    <h3>Update Location</h3>
+    <p>Enter the new location for this document.</p>
+    <label class="form-label">New Location</label>
+    <input type="text" class="modal-input" id="new-location-input" placeholder="e.g. Market Office Shelf A">
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('location-modal')">Cancel</button>
+      <button class="btn-confirm" onclick="confirmUpdateLocation()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE MODAL ── -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>Delete Document</h3>
+    <p>Are you sure you want to delete this document? This action cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="btn-confirm danger-confirm" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+const USERS = [
+  { email: 'alhea@gmail.com', password: 'password123', name: 'Alhea Sarona', role: 'Admin', subject: 'Alhea Sarona' },
+  { email: 'blaze@gmail.com', password: 'password123', name: 'Blaze Samson', role: 'Staff', subject: 'Blaze Samson' },
+  { email: 'juan@gmail.com',  password: 'password123', name: 'Juan Dela Cruz', role: 'Staff', subject: 'Juan Dela Cruz' },
+];
+
+let currentUser = null;
+
+let documents = [
+  { id: 1,  type: 'Community Engagement',                  version: 1, subject: 'Blaze Samson',    location: 'Barangay Cabinet 2',        status: 'ARCHIVED', expiry: '2/4/2026',  backed: false, deleted: false },
+  { id: 2,  type: 'Community Engagement',                  version: 2, subject: 'Blaze Samson',    location: 'Barangay Cabinet 2',        status: 'ARCHIVED', expiry: '3/31/2026', backed: false, deleted: false },
+  { id: 3,  type: 'Community Engagement',                  version: 1, subject: 'Maria Santos',    location: 'Health Office Shelf B',     status: 'ACTIVE',   expiry: '1/6/2028',  backed: false, deleted: false },
+  { id: 4,  type: 'Revenue Collection and Real Property Tax', version: 1, subject: 'Ana Villanueva', location: 'Election Box Shelf A',    status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 5,  type: 'Revenue Collection and Real Property Tax', version: 1, subject: 'Blaze Samson',  location: 'Revenue Office Drawer 2',  status: 'ARCHIVED', expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 6,  type: 'Election Voting Management',             version: 1, subject: 'Maria Santos',    location: 'Election Box Shelf A',      status: 'ARCHIVED', expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 7,  type: 'Election Voting Management',             version: 2, subject: 'Maria Santos',    location: 'Election Box Shelf A',      status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 8,  type: 'Barangay Management',                    version: 1, subject: 'Pedro Garcia',    location: 'Barangay Cabinet 1',        status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 9,  type: 'Disaster Response And Solid Waste',      version: 1, subject: 'Ana Villanueva',  location: 'Disaster Response Room 3',  status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 10, type: 'Disaster Response And Solid Waste',      version: 1, subject: 'Maria Santos',    location: 'Disaster Response Room 3',  status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 11, type: 'Business Permit and Licensing',          version: 1, subject: 'Juan Dela Cruz',  location: 'Revenue Office Drawer 2',   status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 12, type: 'Business Permit and Licensing',          version: 1, subject: 'Blaze Samson',    location: 'Revenue Office Drawer 2',   status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 13, type: 'Public Market and Vendor Management',    version: 1, subject: 'Juan Dela Cruz',  location: 'Market Office Shelf A',     status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 14, type: 'Public Market and Vendor Management',    version: 1, subject: 'Blaze Samson',    location: 'Disaster Response Room 3',  status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 15, type: 'Public Market and Vendor Management',    version: 1, subject: 'Pedro Garcia',    location: 'Market Office Shelf A',     status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 16, type: 'Office of the Senior Citizen Management',version: 1, subject: 'Juan Dela Cruz',  location: 'Disaster Response Room 3',  status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 17, type: 'Office of the Senior Citizen Management',version: 1, subject: 'Blaze Samson',    location: 'Disaster Response Room 3',  status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 18, type: 'Healthcare And Social Welfare',          version: 1, subject: 'Juan Dela Cruz',  location: 'Disaster Response Room 3',  status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 19, type: 'Healthcare And Social Welfare',          version: 1, subject: 'Pedro Garcia',    location: 'Market Office Shelf A',     status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+  { id: 20, type: 'Healthcare And Social Welfare',          version: 1, subject: 'Maria Santos',    location: 'Health Office Shelf B',     status: 'ACTIVE',   expiry: '3/2/2027',  backed: false, deleted: false },
+];
+
+let backups = [];
+let borrowRequests = [];
+let auditLog = [
+  { ts: new Date('2026-03-08T23:13:39'), op: 'DOCUMENT_RENEWED',   doc: 'Revenue Collection and Real Property Tax', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:13:39'), op: 'DOCUMENT_ARCHIVED',  doc: 'Revenue Collection and Real Property Tax', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:13:18'), op: 'DOCUMENT_MODIFIED',  doc: 'Revenue Collection and Real Property Tax', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:12:40'), op: 'DOCUMENT_RESTORED',  doc: 'Office of the Senior Citizen Management', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:12:31'), op: 'DOCUMENT_DELETED',   doc: 'Office of the Senior Citizen Management', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:12:10'), op: 'DOCUMENT_BACKUP',    doc: 'Office of the Senior Citizen Management', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:11:50'), op: 'DOCUMENT_BORROW_APPROVED', doc: 'Business Permit and Licensing', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:11:25'), op: 'DOCUMENT_REQUESTED', doc: 'Business Permit and Licensing', user: 'blaze@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T23:11:01'), op: 'DOCUMENT_RETURNED',  doc: 'Public Market and Vendor Management', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+  { ts: new Date('2026-03-08T21:53:17'), op: 'DOCUMENT_BACKUP',    doc: 'Public Market and Vendor Management', user: 'alhea@gmail.com', ip: '::ffff:127.0.0.1' },
+];
+
+let activeDropdown = null;
+let pendingLocationDocId = null;
+let pendingDeleteDocId = null;
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-password').value;
+  const user = USERS.find(u => u.email === email && u.password === pw);
+  const errEl = document.getElementById('auth-error');
+  if (!user) { errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  currentUser = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('sidebar-username').textContent = user.name + ' (' + user.role + ')';
+  document.getElementById('sidebar-role').textContent = user.role;
+  document.getElementById('user-avatar').textContent = user.name[0];
+
+  // Show My Documents nav for non-admin
+  if (user.role !== 'Admin') {
+    document.getElementById('nav-mydocs').style.display = 'flex';
+    // Hide admin-only items
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      const text = btn.textContent.trim();
+      if (['Storage','Tracking','Retrieval','Audit Trail'].some(t => text.includes(t))) {
+        btn.style.display = 'none';
+      }
+    });
+    showPage('mydocs', document.getElementById('nav-mydocs'));
+  }
+
+  addAuditLog('ACCOUNT_CREATED', '-', email);
+  buildStorage();
+  buildTracking();
+  buildBackupSelect();
+  buildRestoreSelect();
+  buildUpdateSelect();
+  buildAudit();
+  buildMyDocs();
+  updateTrackingStats();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.querySelectorAll('.nav-item').forEach(btn => btn.style.display = '');
+  document.getElementById('nav-mydocs').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  closeAllDropdowns();
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════════════
+function buildStorage() {
+  const container = document.getElementById('folders-container');
+  const types = [...new Set(documents.map(d => d.type))];
+  container.innerHTML = '';
+  types.forEach(type => {
+    const docs = documents.filter(d => d.type === type && !d.deleted);
+    const el = document.createElement('div');
+    el.className = 'folder-item';
+    el.innerHTML = `
+      <div class="folder-header" onclick="toggleFolder(this)">
+        <div class="folder-header-left">
+          <span class="folder-icon">📁</span>
+          ${type}
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="folder-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Version</th><th>Subject</th><th>Location</th>
+                <th>Status</th><th>Expiration Date</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${docs.map(d => `
+                <tr>
+                  <td>${d.version}</td>
+                  <td>${d.subject}</td>
+                  <td>${d.location}</td>
+                  <td><span class="badge badge-${d.status.toLowerCase()}">${d.status}</span></td>
+                  <td>${d.expiry}</td>
+                  <td>
+                    <div class="action-group">
+                      <button class="btn-icon btn-dots" onclick="toggleDropdown(event, ${d.id})">···</button>
+                      <button class="btn-icon btn-dl" title="Download">⬇</button>
+                      <div class="dropdown" id="dd-${d.id}">
+                        <div class="dropdown-item" onclick="openLocationModal(${d.id})">📍 Update location</div>
+                        <div class="dropdown-item danger" onclick="openDeleteModal(${d.id})">🗑 Delete</div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function toggleFolder(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════
+//  TRACKING
+// ══════════════════════════════════════════════
+let trackingFilter = '';
+let trackingStatusFilter = '';
+
+function updateTrackingStats() {
+  const alive = documents.filter(d => !d.deleted);
+  document.getElementById('track-total').textContent = alive.length;
+  document.getElementById('track-borrowed').textContent = alive.filter(d => d.status === 'BORROWED').length;
+  document.getElementById('track-archived').textContent = alive.filter(d => d.status === 'ARCHIVED').length;
+}
+
+function buildTracking() {
+  renderTrackingTable();
+  renderBorrowRequests();
+}
+
+function renderBorrowRequests() {
+  const list = document.getElementById('borrow-requests-list');
+  if (borrowRequests.length === 0) {
+    list.innerHTML = '<div class="empty-state">Documents that are requested for borrowing will appear here.</div>';
+    return;
+  }
+  list.innerHTML = borrowRequests.map((r, i) => `
+    <div class="borrow-card">
+      <div class="borrow-card-info">
+        <h4>${r.docType} — Version ${r.version}</h4>
+        <p>Requested by ${r.requester} · ${r.subject}</p>
+      </div>
+      <div class="borrow-actions">
+        <button class="btn-approve" onclick="approveBorrow(${i})">Approve</button>
+        <button class="btn-refuse" onclick="refuseBorrow(${i})">Refuse</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTrackingTable() {
+  const tbody = document.getElementById('tracking-tbody');
+  let rows = documents.filter(d => !d.deleted);
+  if (trackingFilter) {
+    const q = trackingFilter.toLowerCase();
+    rows = rows.filter(d => d.subject.toLowerCase().includes(q) || d.type.toLowerCase().includes(q) || d.location.toLowerCase().includes(q));
+  }
+  if (trackingStatusFilter) rows = rows.filter(d => d.status === trackingStatusFilter);
+
+  tbody.innerHTML = rows.map(d => `
+    <tr>
+      <td>${d.version}</td>
+      <td>${d.type}</td>
+      <td>${d.subject}</td>
+      <td>${d.location}</td>
+      <td><span class="badge badge-${d.status.toLowerCase()}">${d.status}</span></td>
+      <td>${d.expiry}</td>
+      <td>
+        <div class="action-group">
+          <button class="btn-icon btn-dots" onclick="toggleDropdown(event, 't${d.id}')">···</button>
+          <div class="dropdown" id="dd-t${d.id}">
+            <div class="dropdown-item" onclick="openLocationModal(${d.id})">📍 Update location</div>
+            <div class="dropdown-item danger" onclick="openDeleteModal(${d.id})">🗑 Delete</div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterTracking(v) { trackingFilter = v; renderTrackingTable(); }
+function filterTrackingStatus(v) { trackingStatusFilter = v; renderTrackingTable(); }
+
+function approveBorrow(i) {
+  const r = borrowRequests[i];
+  const doc = documents.find(d => d.id === r.docId);
+  if (doc) doc.status = 'BORROWED';
+  addAuditLog('DOCUMENT_BORROW_APPROVED', r.docType, currentUser.email);
+  borrowRequests.splice(i, 1);
+  buildTracking();
+  buildStorage();
+  updateTrackingStats();
+  showToast('Borrow request approved.');
+}
+
+function refuseBorrow(i) {
+  const r = borrowRequests[i];
+  addAuditLog('DOCUMENT_BORROW_REFUSED', r.docType, currentUser.email);
+  borrowRequests.splice(i, 1);
+  buildTracking();
+  showToast('Borrow request refused.');
+}
+
+// ══════════════════════════════════════════════
+//  RETRIEVAL
+// ══════════════════════════════════════════════
+function buildBackupSelect() {
+  const sel = document.getElementById('backup-select');
+  const opts = documents.filter(d => !d.deleted && !d.backed);
+  if (opts.length === 0) {
+    sel.innerHTML = '<option value="">Already backed up</option>';
+    document.getElementById('backup-btn').textContent = 'Already backed up';
+    document.getElementById('backup-btn').disabled = true;
+    return;
+  }
+  sel.innerHTML = '<option value="">Choose a document</option>' + opts.map(d =>
+    `<option value="${d.id}">${d.status} | Version ${d.version}: ${d.type} | ${d.subject}</option>`
+  ).join('');
+}
+
+function onBackupSelect() {
+  const id = parseInt(document.getElementById('backup-select').value);
+  const preview = document.getElementById('backup-preview');
+  const btn = document.getElementById('backup-btn');
+  if (!id) { preview.style.display = 'none'; btn.disabled = true; return; }
+  const doc = documents.find(d => d.id === id);
+  document.getElementById('bp-version').textContent = 'Version ' + doc.version;
+  document.getElementById('bp-type').textContent = doc.type;
+  document.getElementById('bp-subject').textContent = doc.subject;
+  preview.style.display = 'block';
+  btn.disabled = false;
+}
+
+function doBackup() {
+  const id = parseInt(document.getElementById('backup-select').value);
+  const doc = documents.find(d => d.id === id);
+  if (!doc) return;
+  doc.backed = true;
+  backups.push({ ...doc });
+  addAuditLog('DOCUMENT_BACKUP', doc.type, currentUser.email);
+  buildBackupSelect();
+  buildRestoreSelect();
+  document.getElementById('backup-preview').style.display = 'none';
+  showToast('Backup created for ' + doc.type + '.');
+  buildAudit();
+}
+
+function buildRestoreSelect() {
+  const sel = document.getElementById('restore-select');
+  sel.innerHTML = '<option value="">Choose a document</option>' + backups.map((d, i) =>
+    `<option value="${i}">${d.status} | Version ${d.version}: ${d.type} | ${d.subject}</option>`
+  ).join('');
+}
+
+function onRestoreSelect() {
+  const i = parseInt(document.getElementById('restore-select').value);
+  const preview = document.getElementById('restore-preview');
+  const btn = document.getElementById('restore-btn');
+  if (isNaN(i)) { preview.style.display = 'none'; btn.disabled = true; return; }
+  const doc = backups[i];
+  document.getElementById('rp-version').textContent = 'Version ' + doc.version;
+  document.getElementById('rp-type').textContent = doc.type;
+  document.getElementById('rp-subject').textContent = doc.subject;
+  preview.style.display = 'block';
+  btn.disabled = false;
+}
+
+function doRestore() {
+  const i = parseInt(document.getElementById('restore-select').value);
+  const doc = backups[i];
+  const orig = documents.find(d => d.id === doc.id);
+  if (orig) { orig.deleted = false; orig.status = doc.status; }
+  else documents.push({ ...doc, deleted: false });
+  addAuditLog('DOCUMENT_RESTORED', doc.type, currentUser.email);
+  backups.splice(i, 1);
+  buildRestoreSelect();
+  buildStorage();
+  buildTracking();
+  updateTrackingStats();
+  document.getElementById('restore-preview').style.display = 'none';
+  document.getElementById('restore-btn').disabled = true;
+  buildAudit();
+  showToast('Document restored successfully.');
+}
+
+function buildUpdateSelect() {
+  const sel = document.getElementById('update-select');
+  sel.innerHTML = '<option value="">Choose a document</option>' + documents.filter(d => !d.deleted).map(d =>
+    `<option value="${d.id}">${d.status} | Version ${d.version}: ${d.type} | ${d.subject}</option>`
+  ).join('');
+}
+
+function onUpdateSelect() {
+  const id = parseInt(document.getElementById('update-select').value);
+  const form = document.getElementById('update-form');
+  const btn = document.getElementById('update-btn');
+  if (!id) { form.style.display = 'none'; btn.disabled = true; return; }
+  const doc = documents.find(d => d.id === id);
+  document.getElementById('update-location').value = doc.location;
+  form.style.display = 'block';
+  btn.disabled = false;
+}
+
+function doUpdate() {
+  const id = parseInt(document.getElementById('update-select').value);
+  const doc = documents.find(d => d.id === id);
+  const newLoc = document.getElementById('update-location').value.trim();
+  const newExp = document.getElementById('update-expiry').value;
+  if (newLoc) doc.location = newLoc;
+  if (newExp) {
+    const d = new Date(newExp);
+    doc.expiry = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+    doc.status = 'ACTIVE';
+    addAuditLog('DOCUMENT_RENEWED', doc.type, currentUser.email);
+    if (doc.status === 'ARCHIVED') addAuditLog('DOCUMENT_UNARCHIVED', doc.type, currentUser.email);
+  }
+  addAuditLog('DOCUMENT_MODIFIED', doc.type, currentUser.email);
+  if (newLoc) addAuditLog('LOCATION_CHANGED', doc.type, currentUser.email);
+  buildStorage();
+  buildTracking();
+  buildUpdateSelect();
+  updateTrackingStats();
+  buildAudit();
+  document.getElementById('update-form').style.display = 'none';
+  document.getElementById('update-btn').disabled = true;
+  showToast('Document updated successfully.');
+}
+
+// ══════════════════════════════════════════════
+//  AUDIT
+// ══════════════════════════════════════════════
+let auditSearchFilter = '';
+let auditOpFilter = '';
+
+function addAuditLog(op, doc, user) {
+  auditLog.unshift({ ts: new Date(), op, doc, user, ip: '::ffff:127.0.0.1' });
+}
+
+const opClass = {
+  DOCUMENT_BACKUP: 'op-backup',
+  DOCUMENT_RESTORED: 'op-restore',
+  DOCUMENT_MODIFIED: 'op-modified',
+  DOCUMENT_DELETED: 'op-deleted',
+  DOCUMENT_ARCHIVED: 'op-archived',
+  DOCUMENT_UNARCHIVED: 'op-archived',
+  DOCUMENT_RENEWED: 'op-renewed',
+  DOCUMENT_BORROW_APPROVED: 'op-borrow',
+  DOCUMENT_BORROW_REFUSED: 'op-borrow',
+  DOCUMENT_RETURNED: 'op-returned',
+  LOCATION_CHANGED: 'op-location',
+  ACCOUNT_CREATED: 'op-account',
+  ACCOUNT_MODIFIED: 'op-account',
+  ACCOUNT_DELETED: 'op-account',
+  DOCUMENT_REQUESTED: 'op-requested',
+};
+
+function buildAudit() {
+  const ips = new Set(auditLog.map(l => l.ip));
+  const users = new Set(auditLog.map(l => l.user));
+  document.getElementById('audit-ops').textContent = auditLog.length;
+  document.getElementById('audit-ips').textContent = ips.size;
+  document.getElementById('audit-users').textContent = users.size;
+  renderAuditTable();
+}
+
+function renderAuditTable() {
+  const tbody = document.getElementById('audit-tbody');
+  let rows = [...auditLog];
+  if (auditSearchFilter) {
+    const q = auditSearchFilter.toLowerCase();
+    rows = rows.filter(l => l.user.toLowerCase().includes(q) || l.doc.toLowerCase().includes(q) || l.ip.toLowerCase().includes(q));
+  }
+  if (auditOpFilter) rows = rows.filter(l => l.op === auditOpFilter);
+
+  tbody.innerHTML = rows.map(l => `
+    <tr>
+      <td>${formatTs(l.ts)}</td>
+      <td><span class="op-badge ${opClass[l.op] || ''}">${l.op}</span></td>
+      <td>${l.doc}</td>
+      <td>${l.user}</td>
+      <td>${l.ip}</td>
+    </tr>
+  `).join('');
+  document.getElementById('audit-ops').textContent = auditLog.length;
+}
+
+function formatTs(d) {
+  return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
+       + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: false });
+}
+
+function filterAudit(v) { auditSearchFilter = v; renderAuditTable(); }
+function filterAuditOp(v) { auditOpFilter = v; renderAuditTable(); }
+
+// ══════════════════════════════════════════════
+//  MY DOCUMENTS
+// ══════════════════════════════════════════════
+function buildMyDocs() {
+  if (!currentUser) return;
+  const myDocs = documents.filter(d => !d.deleted && d.subject === currentUser.subject);
+  document.getElementById('my-total').textContent = myDocs.length;
+  document.getElementById('my-archived').textContent = myDocs.filter(d => d.status === 'ARCHIVED').length;
+  document.getElementById('my-borrowed').textContent = myDocs.filter(d => d.status === 'BORROWED').length;
+
+  const list = document.getElementById('my-docs-list');
+  if (myDocs.length === 0) { list.innerHTML = '<div class="empty-state">No documents assigned to you.</div>'; return; }
+  list.innerHTML = myDocs.map(d => `
+    <div class="doc-card">
+      <div class="doc-card-top">
+        <div class="doc-folder-icon">📁</div>
+        <div class="doc-card-info">
+          <h4>${d.type} <span class="badge badge-${d.status.toLowerCase()}">${d.status}</span></h4>
+          <p>Version ${d.version}</p>
+        </div>
+      </div>
+      <div class="doc-card-actions">
+        <button class="btn-outline primary-outline">⬇ Download</button>
+        <button class="btn-outline" onclick="requestBorrow(${d.id})">📎 Request for borrowing</button>
+        <button class="btn-outline">↗ View full details</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function requestBorrow(docId) {
+  const doc = documents.find(d => d.id === docId);
+  if (!doc) return;
+  const already = borrowRequests.find(r => r.docId === docId);
+  if (already) { showToast('Already requested.'); return; }
+  borrowRequests.push({ docId, docType: doc.type, version: doc.version, subject: doc.subject, requester: currentUser.name });
+  addAuditLog('DOCUMENT_REQUESTED', doc.type, currentUser.email);
+  showToast('Borrow request sent!');
+}
+
+// ══════════════════════════════════════════════
+//  MODALS & DROPDOWNS
+// ══════════════════════════════════════════════
+function toggleDropdown(e, id) {
+  e.stopPropagation();
+  const dd = document.getElementById('dd-' + id);
+  if (activeDropdown && activeDropdown !== dd) { activeDropdown.classList.remove('open'); }
+  dd.classList.toggle('open');
+  activeDropdown = dd.classList.contains('open') ? dd : null;
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open'));
+  activeDropdown = null;
+}
+
+document.addEventListener('click', closeAllDropdowns);
+
+function openLocationModal(id) {
+  pendingLocationDocId = id;
+  const doc = documents.find(d => d.id === id);
+  document.getElementById('new-location-input').value = doc ? doc.location : '';
+  document.getElementById('location-modal').classList.add('open');
+  closeAllDropdowns();
+}
+
+function confirmUpdateLocation() {
+  const newLoc = document.getElementById('new-location-input').value.trim();
+  if (!newLoc) return;
+  const doc = documents.find(d => d.id === pendingLocationDocId);
+  if (doc) {
+    doc.location = newLoc;
+    addAuditLog('LOCATION_CHANGED', doc.type, currentUser.email);
+    buildStorage();
+    buildTracking();
+    buildAudit();
+    showToast('Location updated.');
+  }
+  closeModal('location-modal');
+}
+
+function openDeleteModal(id) {
+  pendingDeleteDocId = id;
+  document.getElementById('delete-modal').classList.add('open');
+  closeAllDropdowns();
+}
+
+function confirmDelete() {
+  const doc = documents.find(d => d.id === pendingDeleteDocId);
+  if (doc) {
+    doc.deleted = true;
+    addAuditLog('DOCUMENT_DELETED', doc.type, currentUser.email);
+    buildStorage();
+    buildTracking();
+    updateTrackingStats();
+    buildAudit();
+    showToast('Document deleted.');
+  }
+  closeModal('delete-modal');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════
+//  ENTER KEY for login
+// ══════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('auth-screen').style.display !== 'none') doLogin();
+});
+</script>
+</body>
+</html>
